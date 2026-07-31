@@ -59,6 +59,17 @@ export const OpenDropdown = {
   }), { open: true })
 }
 
+export const ClassBasedPages = {
+  render: () => renderTabs(buildTemplateData({
+    pages: [
+      { name: "Home", classes: ["page-home"] },
+      { name: "Calendar", classes: ["page-calendar"] },
+      { name: "Weather", classes: ["page-weather"] }
+    ],
+    currentPage: 0
+  }))
+}
+
 export const SinglePage = {
   render: () => renderTabs(buildTemplateData({
     pages: ["Dashboard"],
