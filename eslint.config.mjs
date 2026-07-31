@@ -17,6 +17,7 @@ export default defineConfig([
         ...globals.node,
         Log: "readonly",
         Module: "readonly",
+        MM: "readonly",
       },
     },
     plugins: { js, stylistic },

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Page visibility control via MagicMirror module selection (`classes` / `identifiers`)
+- `global` config for modules that remain visible on every page
+- `animationTime` and `useLockString` options for show/hide transitions
+- Unit tests for page config normalization and module filtering
+
 ### Fixed
 
 - Update the dropdown title immediately when a page is selected (no longer wait only on `NEW_PAGE`)
@@ -14,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `pages` config accepts page objects with `name`, `classes`, and `identifiers` (string names remain supported for UI-only mode)
+- MMM-Tabs excludes itself from hide/show so the page control stays available
 - Replaced the native `<select>` with a custom dropdown styled for MagicMirror themes
 - Dropdown colors follow MagicMirror theme variables when available (`--color-text`, etc.)
 - Combined the page indicator and dropdown into a single clickable control

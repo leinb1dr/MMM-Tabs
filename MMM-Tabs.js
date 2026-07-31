@@ -2,13 +2,21 @@ Module.register("MMM-Tabs", {
 
   defaults: {
     pages: [],
+    global: {
+      classes: [],
+      identifiers: []
+    },
     showDropdown: true,
-    defaultPagePrefix: "Page"
+    defaultPagePrefix: "Page",
+    animationTime: 1000,
+    useLockString: true
   },
 
   start() {
+    this.normalized = this.normalizePagesConfig()
+    this.visibilityEnabled = this.hasVisibilitySelectors(this.normalized)
     this.currentPage = 0
-    this.totalPages = Math.max(this.config.pages.length, 1)
+    this.totalPages = Math.max(this.normalized.pages.length, 1)
     this.boundOutsidePointer = this.handleOutsidePointer.bind(this)
     this.boundKeydown = this.handleKeydown.bind(this)
   },
@@ -34,8 +42,16 @@ Module.register("MMM-Tabs", {
 
   notificationReceived(notification, payload) {
     switch (notification) {
+      case "DOM_OBJECTS_CREATED":
+        if (this.visibilityEnabled) {
+          this.applyModuleVisibility()
+          this.sendNotification("MAX_PAGES_CHANGED", this.totalPages)
+          this.sendNotification("NEW_PAGE", this.currentPage)
+        }
+        break
+
       case "MAX_PAGES_CHANGED":
-        if (Number.isInteger(payload) && payload > 0) {
+        if (!this.visibilityEnabled && Number.isInteger(payload) && payload > 0) {
           this.totalPages = payload
           this.updateDom()
         }
@@ -43,7 +59,7 @@ Module.register("MMM-Tabs", {
 
       case "NEW_PAGE":
         if (typeof payload === "number" && !Number.isNaN(payload)) {
-          this.setCurrentPage(payload)
+          this.setCurrentPage(payload, { applyVisibility: this.visibilityEnabled })
         }
         break
 
@@ -58,9 +74,93 @@ Module.register("MMM-Tabs", {
     }
   },
 
+  normalizeSelectorList(value) {
+    if (value == null || value === "") {
+      return []
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .flatMap(item => String(item).trim().split(/\s+/))
+        .filter(Boolean)
+    }
+
+    return String(value).trim().split(/\s+/).filter(Boolean)
+  },
+
+  normalizePage(page, index) {
+    if (typeof page === "string") {
+      return {
+        name: page || `${this.config.defaultPagePrefix} ${index + 1}`,
+        classes: [],
+        identifiers: []
+      }
+    }
+
+    if (page && typeof page === "object") {
+      const name = typeof page.name === "string" && page.name.trim()
+        ? page.name.trim()
+        : `${this.config.defaultPagePrefix} ${index + 1}`
+
+      return {
+        name,
+        classes: this.normalizeSelectorList(page.classes),
+        identifiers: this.normalizeSelectorList(page.identifiers)
+      }
+    }
+
+    return {
+      name: `${this.config.defaultPagePrefix} ${index + 1}`,
+      classes: [],
+      identifiers: []
+    }
+  },
+
+  normalizePagesConfig() {
+    const pageList = Array.isArray(this.config.pages) ? this.config.pages : []
+    const globalConfig = this.config.global && typeof this.config.global === "object"
+      ? this.config.global
+      : {}
+
+    return {
+      pages: pageList.map((page, index) => this.normalizePage(page, index)),
+      global: {
+        classes: this.normalizeSelectorList(globalConfig.classes),
+        identifiers: this.normalizeSelectorList(globalConfig.identifiers)
+      }
+    }
+  },
+
+  hasVisibilitySelectors(normalized) {
+    if (normalized.global.classes.length > 0 || normalized.global.identifiers.length > 0) {
+      return true
+    }
+
+    return normalized.pages.some(page =>
+      page.classes.length > 0 || page.identifiers.length > 0
+    )
+  },
+
+  getSelectorsForPage(pageIndex) {
+    const page = this.normalized.pages[pageIndex] ?? { classes: [], identifiers: [] }
+
+    return {
+      classes: [...new Set([
+        ...this.normalized.global.classes,
+        ...page.classes
+      ])],
+      identifiers: [...new Set([
+        ...this.normalized.global.identifiers,
+        ...page.identifiers
+      ])]
+    }
+  },
+
   getPageNames() {
-    if (this.config.pages.length > 0) {
-      return this.config.pages.slice(0, this.totalPages)
+    if (this.normalized.pages.length > 0) {
+      return this.normalized.pages
+        .slice(0, this.totalPages)
+        .map(page => page.name)
     }
 
     return Array.from(
@@ -175,13 +275,13 @@ Module.register("MMM-Tabs", {
     }
 
     // Update the title immediately so the label stays in sync with the selection,
-    // even before MMM-pages echoes NEW_PAGE (and when it never does).
-    this.setCurrentPage(pageIndex)
+    // even before an external NEW_PAGE notification arrives (and when it never does).
+    this.setCurrentPage(pageIndex, { applyVisibility: this.visibilityEnabled })
     this.sendNotification("PAGE_CHANGED", pageIndex)
     this.sendNotification("PAGE_SELECT", pageIndex)
   },
 
-  setCurrentPage(pageIndex) {
+  setCurrentPage(pageIndex, { applyVisibility = false } = {}) {
     if (this.currentPage === pageIndex) {
       // Still close an open menu when re-selecting the current page.
       const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown.open")
@@ -192,11 +292,75 @@ Module.register("MMM-Tabs", {
         this.closeDropdown(dropdown, trigger, menu)
       }
 
+      if (applyVisibility) {
+        this.applyModuleVisibility()
+      }
+
       return
     }
 
     this.currentPage = pageIndex
     this.updateDom()
+
+    if (applyVisibility) {
+      this.applyModuleVisibility()
+    }
+  },
+
+  /**
+   * Show modules matching the current page + global selectors; hide the rest.
+   * MMM-Tabs itself is always excluded from hiding.
+   *
+   * Uses MagicMirror module selection helpers:
+   * https://docs.magicmirror.builders/module-development/helper-methods.html#module-selection
+   */
+  applyModuleVisibility() {
+    if (typeof MM === "undefined" || typeof MM.getModules !== "function") {
+      return
+    }
+
+    const selectors = this.getSelectorsForPage(this.currentPage)
+    const animationTime = Math.max(Number(this.config.animationTime) || 0, 0)
+    const hideTime = animationTime / 2
+    const lockStringObj = this.config.useLockString
+      ? { lockString: this.identifier }
+      : undefined
+
+    // Class selection uses MM.getModules().withClass(); identifiers are matched
+    // manually because MagicMirror has no withIdentifier helper.
+    const matched = new Set()
+
+    if (selectors.classes.length > 0) {
+      MM.getModules()
+        .withClass(selectors.classes)
+        .enumerate((moduleInstance) => {
+          matched.add(moduleInstance)
+        })
+    }
+
+    if (selectors.identifiers.length > 0) {
+      MM.getModules().enumerate((moduleInstance) => {
+        if (selectors.identifiers.includes(moduleInstance.identifier)) {
+          matched.add(moduleInstance)
+        }
+      })
+    }
+
+    matched.delete(this)
+
+    MM.getModules()
+      .exceptModule(this)
+      .enumerate((moduleInstance) => {
+        if (!matched.has(moduleInstance)) {
+          moduleInstance.hide(hideTime, () => {}, lockStringObj)
+        }
+      })
+
+    setTimeout(() => {
+      for (const moduleInstance of matched) {
+        moduleInstance.show(hideTime, () => {}, lockStringObj)
+      }
+    }, hideTime)
   },
 
   setupGlobalListeners() {
