@@ -1,11 +1,11 @@
 # MMM-Tabs
 
-MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) module that displays the current page name and provides a dropdown for navigating to additional pages. It uses [Nunjucks templating](https://docs.magicmirror.builders/module-development/rendering.html) and integrates with [MMM-pages](https://github.com/sdetweil/MMM-pages).
+MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) module that shows the current page in a clickable dropdown for navigating between pages. It uses [Nunjucks templating](https://docs.magicmirror.builders/module-development/rendering.html) and integrates with [MMM-pages](https://github.com/sdetweil/MMM-pages).
 
 ## Features
 
-- Displays the current page name
-- Dropdown listing all other available pages
+- Current page indicator and page selector combined in one dropdown
+- Dropdown lists all available pages with the active page selected
 - Works with MMM-pages via `NEW_PAGE` and `MAX_PAGES_CHANGED` notifications
 - Sends `PAGE_CHANGED` and `PAGE_SELECT` when a page is chosen from the dropdown
 
@@ -50,7 +50,7 @@ Add MMM-Tabs to the `modules` array in `config/config.js`. Include it in the `fi
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `pages` | `string[]` | `[]` | Display names for each page. When empty, names default to `Page 1`, `Page 2`, etc. |
-| `showDropdown` | `boolean` | `true` | Whether to show the page selection dropdown |
+| `showDropdown` | `boolean` | `true` | Whether to use a dropdown as the page indicator (falls back to a plain label when false or when only one page exists) |
 | `defaultPagePrefix` | `string` | `"Page"` | Prefix used when generating default page names |
 
 ## Notifications

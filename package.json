@@ -1,7 +1,7 @@
 {
   "name": "mmm-tabs",
   "version": "1.0.0",
-  "description": "MagicMirror² module that displays the current page name with a dropdown for additional pages",
+  "description": "MagicMirror² module that shows the current page in a clickable dropdown for page navigation",
   "type": "module",
   "main": "MMM-Tabs.js",
   "scripts": {

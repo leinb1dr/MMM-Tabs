@@ -23,10 +23,9 @@ Module.register("MMM-Tabs", {
     const pages = this.getPageNames()
 
     return {
+      pages: pages.map((name, index) => ({ index, name })),
+      currentPage: this.currentPage,
       currentPageName: pages[this.currentPage] ?? `${this.config.defaultPagePrefix} ${this.currentPage + 1}`,
-      otherPages: pages
-        .map((name, index) => ({ index, name }))
-        .filter(page => page.index !== this.currentPage),
       showDropdown: this.config.showDropdown && pages.length > 1
     }
   },

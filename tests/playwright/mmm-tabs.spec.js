@@ -1,19 +1,22 @@
 import { test, expect } from "@playwright/test"
 
 test.describe("MMM-Tabs fixture page", () => {
-  test("displays the current page name", async ({ page }) => {
+  test("displays the current page in the dropdown", async ({ page }) => {
     await page.goto("/?scenario=home")
 
-    await expect(page.locator(".mmm-tabs-current")).toHaveText("Home")
+    await expect(page.locator(".mmm-tabs-select")).toHaveValue("0")
+    await expect(page.locator(".mmm-tabs-select option:checked")).toHaveText("Home")
+    await expect(page.locator(".mmm-tabs-current")).toHaveCount(0)
   })
 
-  test("lists additional pages in the dropdown", async ({ page }) => {
+  test("lists all pages in the dropdown", async ({ page }) => {
     await page.goto("/?scenario=home")
 
     const options = page.locator(".mmm-tabs-select option")
-    await expect(options).toHaveCount(2)
-    await expect(options.nth(0)).toHaveText("Calendar")
-    await expect(options.nth(1)).toHaveText("Weather")
+    await expect(options).toHaveCount(3)
+    await expect(options.nth(0)).toHaveText("Home")
+    await expect(options.nth(1)).toHaveText("Calendar")
+    await expect(options.nth(2)).toHaveText("Weather")
   })
 
   test("updates selection when a different page is chosen", async ({ page }) => {
@@ -33,7 +36,8 @@ test.describe("MMM-Tabs fixture page", () => {
   test("shows the active page name for non-zero pages", async ({ page }) => {
     await page.goto("/?scenario=calendar")
 
-    await expect(page.locator(".mmm-tabs-current")).toHaveText("Calendar")
-    await expect(page.locator(".mmm-tabs-select option")).toHaveCount(2)
+    await expect(page.locator(".mmm-tabs-select")).toHaveValue("1")
+    await expect(page.locator(".mmm-tabs-select option:checked")).toHaveText("Calendar")
+    await expect(page.locator(".mmm-tabs-select option")).toHaveCount(3)
   })
 })
