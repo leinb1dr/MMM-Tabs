@@ -5,7 +5,7 @@ MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) mod
 ## Features
 
 - Current page indicator and page selector combined in one clickable dropdown
-- Custom dropdown styled to match MagicMirror themes (uses MM CSS color variables)
+- Custom dropdown styled to match MagicMirror themes (overridable via `--mmm-tabs-*` CSS variables)
 - Dropdown lists all available pages with the active page selected
 - Works with MMM-pages via `NEW_PAGE` and `MAX_PAGES_CHANGED` notifications
 - Sends `PAGE_CHANGED` and `PAGE_SELECT` when a page is chosen from the dropdown

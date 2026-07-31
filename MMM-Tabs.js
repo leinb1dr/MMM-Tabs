@@ -50,6 +50,7 @@ Module.register("MMM-Tabs", {
 
       case "MODULE_DOM_CREATED":
       case "MODULE_DOM_UPDATED":
+        this.applyThemeVariables()
         this.attachDropdownHandler()
         break
 
@@ -67,6 +68,28 @@ Module.register("MMM-Tabs", {
       { length: this.totalPages },
       (_, index) => `${this.config.defaultPagePrefix} ${index + 1}`
     )
+  },
+
+  applyThemeVariables() {
+    if (!this.dom) {
+      return
+    }
+
+    const rootStyles = getComputedStyle(document.documentElement)
+    const themeMap = {
+      "--mmm-tabs-text": "--color-text",
+      "--mmm-tabs-text-dimmed": "--color-text-dimmed",
+      "--mmm-tabs-text-bright": "--color-text-bright",
+      "--mmm-tabs-background": "--color-background"
+    }
+
+    for (const [localName, rootName] of Object.entries(themeMap)) {
+      const value = rootStyles.getPropertyValue(rootName).trim()
+
+      if (value) {
+        this.dom.style.setProperty(localName, value)
+      }
+    }
   },
 
   attachDropdownHandler() {
@@ -186,7 +209,7 @@ Module.register("MMM-Tabs", {
     }
 
     const options = [...menu.querySelectorAll(".mmm-tabs-option")]
-    const currentIndex = options.findIndex((option) => option === document.activeElement)
+    const currentIndex = options.findIndex(option => option === document.activeElement)
 
     if (event.key === "ArrowDown") {
       event.preventDefault()
