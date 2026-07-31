@@ -123,7 +123,20 @@ function renderPage(scenarioKey) {
         for (const option of options) {
           option.onclick = (event) => {
             event.stopPropagation()
-            output.textContent = option.dataset.value
+            const pageIndex = option.dataset.value
+            output.textContent = pageIndex
+
+            for (const item of options) {
+              const selected = item.dataset.value === pageIndex
+              item.classList.toggle("selected", selected)
+              item.setAttribute("aria-selected", selected ? "true" : "false")
+            }
+
+            const label = trigger.querySelector(".mmm-tabs-label")
+            if (label) {
+              label.textContent = option.textContent
+            }
+
             close()
           }
         }

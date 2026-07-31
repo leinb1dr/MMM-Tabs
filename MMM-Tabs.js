@@ -43,8 +43,7 @@ Module.register("MMM-Tabs", {
 
       case "NEW_PAGE":
         if (typeof payload === "number" && !Number.isNaN(payload)) {
-          this.currentPage = payload
-          this.updateDom()
+          this.setCurrentPage(payload)
         }
         break
 
@@ -136,7 +135,6 @@ Module.register("MMM-Tabs", {
       option.onclick = (event) => {
         event.stopPropagation()
         this.selectPage(option.dataset.value)
-        this.closeDropdown(dropdown, trigger, menu)
       }
     }
 
@@ -172,10 +170,33 @@ Module.register("MMM-Tabs", {
   selectPage(value) {
     const pageIndex = Number.parseInt(value, 10)
 
-    if (!Number.isNaN(pageIndex)) {
-      this.sendNotification("PAGE_CHANGED", pageIndex)
-      this.sendNotification("PAGE_SELECT", pageIndex)
+    if (Number.isNaN(pageIndex)) {
+      return
     }
+
+    // Update the title immediately so the label stays in sync with the selection,
+    // even before MMM-pages echoes NEW_PAGE (and when it never does).
+    this.setCurrentPage(pageIndex)
+    this.sendNotification("PAGE_CHANGED", pageIndex)
+    this.sendNotification("PAGE_SELECT", pageIndex)
+  },
+
+  setCurrentPage(pageIndex) {
+    if (this.currentPage === pageIndex) {
+      // Still close an open menu when re-selecting the current page.
+      const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown.open")
+
+      if (dropdown) {
+        const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+        const menu = dropdown.querySelector(".mmm-tabs-menu")
+        this.closeDropdown(dropdown, trigger, menu)
+      }
+
+      return
+    }
+
+    this.currentPage = pageIndex
+    this.updateDom()
   },
 
   setupGlobalListeners() {
@@ -250,8 +271,8 @@ Module.register("MMM-Tabs", {
       event.preventDefault()
       if (currentIndex >= 0) {
         this.selectPage(options[currentIndex].dataset.value)
-        this.closeDropdown(dropdown, trigger, menu)
-        trigger.focus()
+        // Focus the trigger after DOM refresh (or immediately if page unchanged).
+        this.getContentRoot()?.querySelector(".mmm-tabs-trigger")?.focus()
       }
     }
   }
