@@ -1,11 +1,29 @@
 <div class="mmm-tabs">
   {% if showDropdown %}
-  <select class="mmm-tabs-select" aria-label="Select page">
-    {% for page in pages %}
-    <option value="{{ page.index }}"{% if page.index == currentPage %} selected{% endif %}>{{ page.name }}</option>
-    {% endfor %}
-  </select>
+  <div class="mmm-tabs-dropdown">
+    <button
+      type="button"
+      class="mmm-tabs-trigger bright"
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      aria-label="Select page"
+    >
+      <span class="mmm-tabs-label">{{ currentPageName }}</span>
+      <span class="mmm-tabs-chevron" aria-hidden="true"></span>
+    </button>
+    <ul class="mmm-tabs-menu" role="listbox" aria-label="Pages" hidden>
+      {% for page in pages %}
+      <li
+        class="mmm-tabs-option{% if page.index == currentPage %} selected{% endif %}"
+        role="option"
+        data-value="{{ page.index }}"
+        aria-selected="{% if page.index == currentPage %}true{% else %}false{% endif %}"
+        tabindex="-1"
+      >{{ page.name }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   {% else %}
-  <span class="mmm-tabs-current">{{ currentPageName }}</span>
+  <span class="mmm-tabs-current bright">{{ currentPageName }}</span>
   {% endif %}
 </div>

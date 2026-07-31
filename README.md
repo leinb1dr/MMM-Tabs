@@ -4,7 +4,8 @@ MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) mod
 
 ## Features
 
-- Current page indicator and page selector combined in one dropdown
+- Current page indicator and page selector combined in one clickable dropdown
+- Custom dropdown styled to match MagicMirror themes (uses MM CSS color variables)
 - Dropdown lists all available pages with the active page selected
 - Works with MMM-pages via `NEW_PAGE` and `MAX_PAGES_CHANGED` notifications
 - Sends `PAGE_CHANGED` and `PAGE_SELECT` when a page is chosen from the dropdown
@@ -50,7 +51,7 @@ Add MMM-Tabs to the `modules` array in `config/config.js`. Include it in the `fi
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `pages` | `string[]` | `[]` | Display names for each page. When empty, names default to `Page 1`, `Page 2`, etc. |
-| `showDropdown` | `boolean` | `true` | Whether to use a dropdown as the page indicator (falls back to a plain label when false or when only one page exists) |
+| `showDropdown` | `boolean` | `true` | Whether to use a themed dropdown as the page indicator (falls back to a plain label when false or when only one page exists) |
 | `defaultPagePrefix` | `string` | `"Page"` | Prefix used when generating default page names |
 
 ## Notifications

@@ -9,6 +9,8 @@ Module.register("MMM-Tabs", {
   start() {
     this.currentPage = 0
     this.totalPages = Math.max(this.config.pages.length, 1)
+    this.boundOutsidePointer = this.handleOutsidePointer.bind(this)
+    this.boundKeydown = this.handleKeydown.bind(this)
   },
 
   getStyles() {
@@ -68,18 +70,142 @@ Module.register("MMM-Tabs", {
   },
 
   attachDropdownHandler() {
-    const select = this.dom.querySelector(".mmm-tabs-select")
+    const dropdown = this.dom.querySelector(".mmm-tabs-dropdown")
 
-    if (!select) {
+    if (!dropdown) {
+      this.teardownGlobalListeners()
       return
     }
 
-    select.onchange = (event) => {
-      const pageIndex = Number.parseInt(event.target.value, 10)
+    const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+    const menu = dropdown.querySelector(".mmm-tabs-menu")
+    const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
 
-      if (!Number.isNaN(pageIndex)) {
-        this.sendNotification("PAGE_CHANGED", pageIndex)
-        this.sendNotification("PAGE_SELECT", pageIndex)
+    trigger.onclick = (event) => {
+      event.stopPropagation()
+      this.toggleDropdown(dropdown, trigger, menu)
+    }
+
+    for (const option of options) {
+      option.onclick = (event) => {
+        event.stopPropagation()
+        this.selectPage(option.dataset.value)
+        this.closeDropdown(dropdown, trigger, menu)
+      }
+    }
+
+    this.setupGlobalListeners()
+  },
+
+  toggleDropdown(dropdown, trigger, menu) {
+    if (dropdown.classList.contains("open")) {
+      this.closeDropdown(dropdown, trigger, menu)
+      return
+    }
+
+    this.openDropdown(dropdown, trigger, menu)
+  },
+
+  openDropdown(dropdown, trigger, menu) {
+    dropdown.classList.add("open")
+    trigger.setAttribute("aria-expanded", "true")
+    menu.hidden = false
+
+    const selected = menu.querySelector(".mmm-tabs-option[aria-selected=\"true\"]")
+      ?? menu.querySelector(".mmm-tabs-option")
+
+    selected?.focus()
+  },
+
+  closeDropdown(dropdown, trigger, menu) {
+    dropdown.classList.remove("open")
+    trigger.setAttribute("aria-expanded", "false")
+    menu.hidden = true
+  },
+
+  selectPage(value) {
+    const pageIndex = Number.parseInt(value, 10)
+
+    if (!Number.isNaN(pageIndex)) {
+      this.sendNotification("PAGE_CHANGED", pageIndex)
+      this.sendNotification("PAGE_SELECT", pageIndex)
+    }
+  },
+
+  setupGlobalListeners() {
+    if (this.listenersAttached) {
+      return
+    }
+
+    document.addEventListener("pointerdown", this.boundOutsidePointer)
+    document.addEventListener("keydown", this.boundKeydown)
+    this.listenersAttached = true
+  },
+
+  teardownGlobalListeners() {
+    if (!this.listenersAttached) {
+      return
+    }
+
+    document.removeEventListener("pointerdown", this.boundOutsidePointer)
+    document.removeEventListener("keydown", this.boundKeydown)
+    this.listenersAttached = false
+  },
+
+  handleOutsidePointer(event) {
+    const dropdown = this.dom?.querySelector(".mmm-tabs-dropdown.open")
+
+    if (!dropdown || dropdown.contains(event.target)) {
+      return
+    }
+
+    const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+    const menu = dropdown.querySelector(".mmm-tabs-menu")
+    this.closeDropdown(dropdown, trigger, menu)
+  },
+
+  handleKeydown(event) {
+    const dropdown = this.dom?.querySelector(".mmm-tabs-dropdown")
+
+    if (!dropdown) {
+      return
+    }
+
+    const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+    const menu = dropdown.querySelector(".mmm-tabs-menu")
+    const isOpen = dropdown.classList.contains("open")
+
+    if (event.key === "Escape" && isOpen) {
+      this.closeDropdown(dropdown, trigger, menu)
+      trigger.focus()
+      return
+    }
+
+    if (!isOpen) {
+      return
+    }
+
+    const options = [...menu.querySelectorAll(".mmm-tabs-option")]
+    const currentIndex = options.findIndex((option) => option === document.activeElement)
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault()
+      options[(currentIndex + 1) % options.length]?.focus()
+      return
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault()
+      options[(currentIndex - 1 + options.length) % options.length]?.focus()
+      return
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      if (currentIndex >= 0) {
+        this.selectPage(options[currentIndex].dataset.value)
+        this.closeDropdown(dropdown, trigger, menu)
+        trigger.focus()
       }
     }
   }
