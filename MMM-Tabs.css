@@ -34,7 +34,7 @@
   padding: 0.25rem 0.125rem;
   border: none;
   background: transparent;
-  color: inherit;
+  color: var(--mmm-tabs-text-bright);
   font: inherit;
   font-size: 1.25rem;
   font-weight: 600;
@@ -44,6 +44,10 @@
 }
 
 .MMM-Tabs .mmm-tabs-trigger:focus {
+  box-shadow: none;
+}
+
+.MMM-Tabs .mmm-tabs-trigger:focus-visible {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
@@ -63,17 +67,17 @@
 
 .MMM-Tabs .mmm-tabs-menu {
   position: absolute;
-  bottom: calc(100% + 0.35rem);
+  bottom: calc(100% + 0.5rem);
   left: 50%;
   z-index: 100;
-  min-width: max(100%, 8rem);
+  min-width: max(100%, 9rem);
   margin: 0;
-  padding: 0.35rem 0;
+  padding: 0.5rem 0;
   list-style: none;
   background: var(--mmm-tabs-background);
-  border: 1px solid var(--mmm-tabs-text-dimmed);
+  border-top: 1px solid var(--mmm-tabs-text-dimmed);
+  border-bottom: 1px solid var(--mmm-tabs-text-dimmed);
   color: var(--mmm-tabs-text);
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.65);
   transform: translateX(-50%);
 }
 

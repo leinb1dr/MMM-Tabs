@@ -45,6 +45,8 @@ test.describe("MMM-Tabs fixture page", () => {
   test("styles the open menu with MagicMirror theme colors", async ({ page }) => {
     await page.goto("/?scenario=home")
 
+    await expect(page.locator(".mmm-tabs-trigger")).toHaveCSS("color", "rgb(255, 255, 255)")
+
     await page.locator(".mmm-tabs-trigger").click()
 
     const menu = page.locator(".mmm-tabs-menu")
