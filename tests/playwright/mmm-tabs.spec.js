@@ -24,10 +24,10 @@ test.describe("MMM-Tabs fixture page", () => {
 
     await page.locator(".mmm-tabs-trigger").click()
     await expect(page.locator(".mmm-tabs-menu")).toBeVisible()
-    await page.locator(".mmm-tabs-option[data-value=\"1\"]").click()
-    await expect(page.locator("#selected-page")).toHaveText("1")
-    await expect(page.locator(".mmm-tabs-label")).toHaveText("Calendar")
-    await expect(page.locator(".mmm-tabs-option[aria-selected=\"true\"]")).toHaveText("Calendar")
+    await page.locator(".mmm-tabs-option[data-value=\"2\"]").click()
+    await expect(page.locator("#selected-page")).toHaveText("2")
+    await expect(page.locator(".mmm-tabs-label")).toHaveText("Weather")
+    await expect(page.locator(".mmm-tabs-option[aria-selected=\"true\"]")).toHaveText("Weather")
     await expect(page.locator(".mmm-tabs-menu")).toBeHidden()
   })
 
