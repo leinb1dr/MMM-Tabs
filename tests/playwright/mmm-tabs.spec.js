@@ -23,8 +23,18 @@ test.describe("MMM-Tabs fixture page", () => {
     await page.goto("/?scenario=home")
 
     await page.locator(".mmm-tabs-trigger").click()
+    await expect(page.locator(".mmm-tabs-menu")).toBeVisible()
     await page.locator(".mmm-tabs-option[data-value=\"2\"]").click()
     await expect(page.locator("#selected-page")).toHaveText("2")
+    await expect(page.locator(".mmm-tabs-menu")).toBeHidden()
+  })
+
+  test("attaches click handlers using MagicMirror module-content lookup", async ({ page }) => {
+    await page.goto("/?scenario=home")
+
+    await expect(page.locator("#module_1_MMM-Tabs.module.MMM-Tabs .module-content .mmm-tabs-trigger")).toBeVisible()
+    await page.locator("#module_1_MMM-Tabs .mmm-tabs-trigger").click()
+    await expect(page.locator("#module_1_MMM-Tabs .mmm-tabs-dropdown")).toHaveClass(/open/)
   })
 
   test("hides the dropdown when only one page exists", async ({ page }) => {

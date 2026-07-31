@@ -56,17 +56,45 @@ function renderPage(scenarioKey) {
     </style>
   </head>
   <body>
-    <div class="MMM-Tabs" data-scenario="${scenarioKey}">
-      ${html}
+    <!-- Mirror MagicMirror module wrapper: #identifier.module.MMM-Tabs > .module-content -->
+    <div id="module_1_MMM-Tabs" class="module MMM-Tabs" data-scenario="${scenarioKey}">
+      <header class="module-header" style="display: none;"></header>
+      <div class="module-content">
+        <div>
+          ${html}
+        </div>
+      </div>
     </div>
     <script>
+      const moduleIdentifier = "module_1_MMM-Tabs"
+
       const output = document.createElement("output")
       output.id = "selected-page"
       output.setAttribute("aria-live", "polite")
       document.body.appendChild(output)
 
-      const dropdown = document.querySelector(".mmm-tabs-dropdown")
+      // Same DOM lookup MagicMirror modules must use (MM does not set this.dom).
+      const getModuleElement = () => document.getElementById(moduleIdentifier)
+      const getContentRoot = () => getModuleElement()?.querySelector(".module-content") ?? null
+
+      const root = getContentRoot()
+      const dropdown = root?.querySelector(".mmm-tabs-dropdown")
+
       if (dropdown) {
+        const moduleElement = getModuleElement()
+        const rootStyles = getComputedStyle(document.documentElement)
+        for (const [localName, rootName] of [
+          ["--mmm-tabs-text", "--color-text"],
+          ["--mmm-tabs-text-dimmed", "--color-text-dimmed"],
+          ["--mmm-tabs-text-bright", "--color-text-bright"],
+          ["--mmm-tabs-background", "--color-background"]
+        ]) {
+          const value = rootStyles.getPropertyValue(rootName).trim()
+          if (value) {
+            moduleElement.style.setProperty(localName, value)
+          }
+        }
+
         const trigger = dropdown.querySelector(".mmm-tabs-trigger")
         const menu = dropdown.querySelector(".mmm-tabs-menu")
         const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
@@ -83,25 +111,26 @@ function renderPage(scenarioKey) {
           menu.hidden = true
         }
 
-        trigger.addEventListener("click", (event) => {
+        trigger.onclick = (event) => {
           event.stopPropagation()
           if (dropdown.classList.contains("open")) {
             close()
           } else {
             open()
           }
-        })
+        }
 
         for (const option of options) {
-          option.addEventListener("click", (event) => {
+          option.onclick = (event) => {
             event.stopPropagation()
             output.textContent = option.dataset.value
             close()
-          })
+          }
         }
 
         document.addEventListener("pointerdown", (event) => {
-          if (!dropdown.contains(event.target)) {
+          const openDropdown = getContentRoot()?.querySelector(".mmm-tabs-dropdown.open")
+          if (openDropdown && !openDropdown.contains(event.target)) {
             close()
           }
         })
