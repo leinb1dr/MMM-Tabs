@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Update the dropdown title immediately when a page is selected (no longer wait only on `NEW_PAGE`)
 - Restore dropdown clicks by resolving the module DOM via `#${identifier} > .module-content` (MagicMirror does not set `this.dom`)
 
 ### Changed

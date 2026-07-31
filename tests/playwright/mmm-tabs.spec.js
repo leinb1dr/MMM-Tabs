@@ -26,6 +26,8 @@ test.describe("MMM-Tabs fixture page", () => {
     await expect(page.locator(".mmm-tabs-menu")).toBeVisible()
     await page.locator(".mmm-tabs-option[data-value=\"2\"]").click()
     await expect(page.locator("#selected-page")).toHaveText("2")
+    await expect(page.locator(".mmm-tabs-label")).toHaveText("Weather")
+    await expect(page.locator(".mmm-tabs-option[aria-selected=\"true\"]")).toHaveText("Weather")
     await expect(page.locator(".mmm-tabs-menu")).toBeHidden()
   })
 
