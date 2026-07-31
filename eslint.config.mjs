@@ -6,6 +6,7 @@ import markdown from "@eslint/markdown"
 import stylistic from "@stylistic/eslint-plugin"
 
 export default defineConfig([
+  { ignores: ["test-results/**", "playwright-report/**", "storybook-static/**"] },
   { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
   {
     files: ["**/*.js", "**/*.mjs"],
@@ -25,6 +26,12 @@ export default defineConfig([
       "@stylistic/comma-dangle": ["error", "only-multiline"],
       "@stylistic/max-statements-per-line": ["error", { max: 2 }],
       "@stylistic/quotes": ["error", "double"]
+    }
+  },
+  {
+    files: ["stories/**/*.js", "tests/**/*.js", ".storybook/**/*.js", "playwright.config.js"],
+    rules: {
+      "no-console": "off"
     }
   },
   { files: ["**/*.md"], plugins: { markdown }, language: "markdown/gfm", extends: ["markdown/recommended"] },

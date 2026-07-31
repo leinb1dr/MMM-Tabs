@@ -1,0 +1,10 @@
+<div class="mmm-tabs">
+  <span class="mmm-tabs-current">{{ currentPageName }}</span>
+  {% if showDropdown %}
+  <select class="mmm-tabs-select" aria-label="Select page">
+    {% for page in otherPages %}
+    <option value="{{ page.index }}">{{ page.name }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+</div>
