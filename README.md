@@ -1,85 +1,104 @@
-# MMM-Template
-Use this template for creating new MagicMirror² modules.
+# MMM-Tabs
 
-See the [wiki page](https://github.com/Dennis-Rosenbaum/MMM-Template/wiki) for an in depth overview of how to get started.
+MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) module that displays the current page name and provides a dropdown for navigating to additional pages. It uses [Nunjucks templating](https://docs.magicmirror.builders/module-development/rendering.html) and integrates with [MMM-pages](https://github.com/sdetweil/MMM-pages).
 
-# MMM-Template
+## Features
 
-*MMM-Template* is a module for [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) that displays ... [Module description]
-
-## Screenshot
-
-![Example of MMM-Template](./example_1.png)
+- Displays the current page name
+- Dropdown listing all other available pages
+- Works with MMM-pages via `NEW_PAGE` and `MAX_PAGES_CHANGED` notifications
+- Sends `PAGE_CHANGED` and `PAGE_SELECT` when a page is chosen from the dropdown
 
 ## Installation
 
-### Install
-
-In your terminal, go to the modules directory and clone the repository:
-
 ```bash
 cd ~/MagicMirror/modules
-git clone [GitHub url]
-```
-
-### Update
-
-Go to the module directory and pull the latest changes:
-
-```bash
-cd ~/MagicMirror/modules/MMM-Template
-git pull
+git clone https://github.com/leinb1dr/MMM-Tabs
+cd MMM-Tabs
+npm install
 ```
 
 ## Configuration
 
-To use this module, you have to add a configuration object to the modules array in the `config/config.js` file.
+Add MMM-Tabs to the `modules` array in `config/config.js`. Include it in the `fixed` array of MMM-pages so it appears on every page.
 
-### Example configuration
-
-Minimal configuration to use the module:
+### Example
 
 ```js
-    {
-        module: 'MMM-Template',
-        position: 'lower_third'
-    },
+{
+  module: "MMM-pages",
+  config: {
+    modules: [
+      ["clock", "weather"],
+      ["calendar", "newsfeed"]
+    ],
+    fixed: ["MMM-Tabs"]
+  }
+},
+{
+  module: "MMM-Tabs",
+  position: "top_center",
+  config: {
+    pages: ["Home", "Calendar"],
+    showDropdown: true
+  }
+}
 ```
 
-Configuration with all options:
+### Options
 
-```js
-    {
-        module: 'MMM-Template',
-        position: 'lower_third',
-        config: {
-            exampleContent: 'Welcome world'
-        }
-    },
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `pages` | `string[]` | `[]` | Display names for each page. When empty, names default to `Page 1`, `Page 2`, etc. |
+| `showDropdown` | `boolean` | `true` | Whether to show the page selection dropdown |
+| `defaultPagePrefix` | `string` | `"Page"` | Prefix used when generating default page names |
+
+## Notifications
+
+### Received
+
+| Notification | Payload | Description |
+| --- | --- | --- |
+| `MAX_PAGES_CHANGED` | `number` | Sets the total number of pages from MMM-pages |
+| `NEW_PAGE` | `number` | Updates the displayed current page index |
+
+### Sent
+
+| Notification | Payload | Description |
+| --- | --- | --- |
+| `PAGE_CHANGED` | `number` | Requests a page change (sdetweil/MMM-pages) |
+| `PAGE_SELECT` | `number` | Requests a page change (edward-shen/MMM-pages) |
+
+## Development
+
+```bash
+npm install
+npm run lint
+npm run storybook
+npm test
 ```
 
-### Configuration options
+### Storybook
 
-Option|Possible values|Default|Description
-------|------|------|-----------
-`exampleContent`|`string`|not available|The content to show on the page
+Preview the Nunjucks template in isolation:
 
-## Sending notifications to the module
+```bash
+npm run storybook
+```
 
-Notification|Description
-------|-----------
-`TEMPLATE_RANDOM_TEXT`|Payload must contain the text that needs to be shown on this module
+### Playwright
 
-## Developer commands
+Run browser tests against the fixture page and Storybook:
 
-- `npm install` - Install devDependencies like ESLint.
-- `node --run lint` - Run linting and formatter checks.
-- `node --run lint:fix` - Fix linting and formatter issues.
+```bash
+npm run test:playwright
+npm run test:storybook
+```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
 
 ## Changelog
 
-All notable changes to this project will be documented in the [CHANGELOG.md](CHANGELOG.md) file.
+See [CHANGELOG.md](CHANGELOG.md).
