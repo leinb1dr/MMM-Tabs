@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- Restore dropdown clicks by resolving the module DOM via `#${identifier} > .module-content` (MagicMirror does not set `this.dom`)
+
 ### Changed
 
 - Replaced the native `<select>` with a custom dropdown styled for MagicMirror themes

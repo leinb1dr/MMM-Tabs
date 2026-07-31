@@ -70,8 +70,20 @@ Module.register("MMM-Tabs", {
     )
   },
 
+  // MagicMirror does not set `this.dom`. Module content lives under
+  // `#${this.identifier} > .module-content`.
+  getModuleElement() {
+    return document.getElementById(this.identifier)
+  },
+
+  getContentRoot() {
+    return this.getModuleElement()?.querySelector(".module-content") ?? null
+  },
+
   applyThemeVariables() {
-    if (!this.dom) {
+    const moduleElement = this.getModuleElement()
+
+    if (!moduleElement) {
       return
     }
 
@@ -87,13 +99,20 @@ Module.register("MMM-Tabs", {
       const value = rootStyles.getPropertyValue(rootName).trim()
 
       if (value) {
-        this.dom.style.setProperty(localName, value)
+        moduleElement.style.setProperty(localName, value)
       }
     }
   },
 
   attachDropdownHandler() {
-    const dropdown = this.dom.querySelector(".mmm-tabs-dropdown")
+    const root = this.getContentRoot()
+
+    if (!root) {
+      this.teardownGlobalListeners()
+      return
+    }
+
+    const dropdown = root.querySelector(".mmm-tabs-dropdown")
 
     if (!dropdown) {
       this.teardownGlobalListeners()
@@ -103,6 +122,10 @@ Module.register("MMM-Tabs", {
     const trigger = dropdown.querySelector(".mmm-tabs-trigger")
     const menu = dropdown.querySelector(".mmm-tabs-menu")
     const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
+
+    if (!trigger || !menu) {
+      return
+    }
 
     trigger.onclick = (event) => {
       event.stopPropagation()
@@ -176,7 +199,7 @@ Module.register("MMM-Tabs", {
   },
 
   handleOutsidePointer(event) {
-    const dropdown = this.dom?.querySelector(".mmm-tabs-dropdown.open")
+    const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown.open")
 
     if (!dropdown || dropdown.contains(event.target)) {
       return
@@ -188,7 +211,7 @@ Module.register("MMM-Tabs", {
   },
 
   handleKeydown(event) {
-    const dropdown = this.dom?.querySelector(".mmm-tabs-dropdown")
+    const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown")
 
     if (!dropdown) {
       return
