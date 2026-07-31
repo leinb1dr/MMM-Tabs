@@ -10,6 +10,7 @@ MMM-Tabs is a [MagicMirror²](https://github.com/MagicMirrorOrg/MagicMirror) mod
 - MMM-Tabs itself is always excluded from hiding
 - Custom dropdown styled to match MagicMirror themes (overridable via `--mmm-tabs-*` CSS variables)
 - Compatible notifications for other page-aware modules (`PAGE_CHANGED`, `PAGE_SELECT`, `NEW_PAGE`, `MAX_PAGES_CHANGED`)
+- Optional idle reset that returns to the first page after inactivity (1 minute by default)
 
 ## Installation
 
@@ -47,7 +48,8 @@ Add MMM-Tabs to the `modules` array in `config/config.js`. Assign each paged mod
       identifiers: []
     },
     showDropdown: true,
-    animationTime: 1000
+    animationTime: 1000,
+    resetTimeout: 60000
   }
 },
 {
@@ -111,6 +113,7 @@ If `pages` is a list of strings and `global` has no selectors, MMM-Tabs only ren
 | `defaultPagePrefix` | `string` | `"Page"` | Prefix used when generating default page names |
 | `animationTime` | `number` | `1000` | Total show/hide animation time in milliseconds |
 | `useLockString` | `boolean` | `true` | Pass MagicMirror visibility lock strings when showing/hiding modules |
+| `resetTimeout` | `number \| false` | `60000` | Idle time in milliseconds before returning to the first page. Pointer and keyboard activity restart the timer. Set to `0` or `false` to disable. |
 
 #### Page object
 

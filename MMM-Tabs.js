@@ -9,7 +9,9 @@ Module.register("MMM-Tabs", {
     showDropdown: true,
     defaultPagePrefix: "Page",
     animationTime: 1000,
-    useLockString: true
+    useLockString: true,
+    // Idle time before returning to the first page. Set to 0 or false to disable.
+    resetTimeout: 60000
   },
 
   start() {
@@ -17,6 +19,7 @@ Module.register("MMM-Tabs", {
     this.visibilityEnabled = this.hasVisibilitySelectors(this.normalized)
     this.currentPage = 0
     this.totalPages = Math.max(this.normalized.pages.length, 1)
+    this.resetTimer = null
     this.boundOutsidePointer = this.handleOutsidePointer.bind(this)
     this.boundKeydown = this.handleKeydown.bind(this)
   },
@@ -208,37 +211,40 @@ Module.register("MMM-Tabs", {
 
     if (!root) {
       this.teardownGlobalListeners()
+      this.clearResetTimeout()
       return
     }
 
     const dropdown = root.querySelector(".mmm-tabs-dropdown")
 
-    if (!dropdown) {
-      this.teardownGlobalListeners()
-      return
-    }
+    if (dropdown) {
+      const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+      const menu = dropdown.querySelector(".mmm-tabs-menu")
+      const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
 
-    const trigger = dropdown.querySelector(".mmm-tabs-trigger")
-    const menu = dropdown.querySelector(".mmm-tabs-menu")
-    const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
+      if (trigger && menu) {
+        trigger.onclick = (event) => {
+          event.stopPropagation()
+          this.onUserActivity()
+          this.toggleDropdown(dropdown, trigger, menu)
+        }
 
-    if (!trigger || !menu) {
-      return
-    }
-
-    trigger.onclick = (event) => {
-      event.stopPropagation()
-      this.toggleDropdown(dropdown, trigger, menu)
-    }
-
-    for (const option of options) {
-      option.onclick = (event) => {
-        event.stopPropagation()
-        this.selectPage(option.dataset.value)
+        for (const option of options) {
+          option.onclick = (event) => {
+            event.stopPropagation()
+            this.selectPage(option.dataset.value)
+          }
+        }
       }
     }
 
-    this.setupGlobalListeners()
+    if (dropdown || this.getResetTimeoutMs() > 0) {
+      this.setupGlobalListeners()
+      this.scheduleResetTimeout()
+    } else {
+      this.teardownGlobalListeners()
+      this.clearResetTimeout()
+    }
   },
 
   toggleDropdown(dropdown, trigger, menu) {
@@ -296,6 +302,7 @@ Module.register("MMM-Tabs", {
         this.applyModuleVisibility()
       }
 
+      this.scheduleResetTimeout()
       return
     }
 
@@ -305,6 +312,63 @@ Module.register("MMM-Tabs", {
     if (applyVisibility) {
       this.applyModuleVisibility()
     }
+
+    this.scheduleResetTimeout()
+  },
+
+  /**
+   * Idle milliseconds before returning to the first page.
+   * `0` / `false` / `null` / non-positive values disable the reset.
+   */
+  getResetTimeoutMs() {
+    const value = this.config.resetTimeout
+
+    if (value === false || value === null) {
+      return 0
+    }
+
+    const timeout = Number(value)
+
+    if (!Number.isFinite(timeout) || timeout <= 0) {
+      return 0
+    }
+
+    return timeout
+  },
+
+  clearResetTimeout() {
+    if (this.resetTimer != null) {
+      clearTimeout(this.resetTimer)
+      this.resetTimer = null
+    }
+  },
+
+  scheduleResetTimeout() {
+    this.clearResetTimeout()
+
+    const timeout = this.getResetTimeoutMs()
+
+    if (timeout <= 0 || this.currentPage === 0) {
+      return
+    }
+
+    this.resetTimer = setTimeout(() => {
+      this.handleResetTimeout()
+    }, timeout)
+  },
+
+  handleResetTimeout() {
+    this.resetTimer = null
+
+    if (this.currentPage === 0 || this.getResetTimeoutMs() <= 0) {
+      return
+    }
+
+    this.selectPage(0)
+  },
+
+  onUserActivity() {
+    this.scheduleResetTimeout()
   },
 
   /**
@@ -384,6 +448,8 @@ Module.register("MMM-Tabs", {
   },
 
   handleOutsidePointer(event) {
+    this.onUserActivity()
+
     const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown.open")
 
     if (!dropdown || dropdown.contains(event.target)) {
@@ -396,6 +462,8 @@ Module.register("MMM-Tabs", {
   },
 
   handleKeydown(event) {
+    this.onUserActivity()
+
     const dropdown = this.getContentRoot()?.querySelector(".mmm-tabs-dropdown")
 
     if (!dropdown) {
@@ -439,5 +507,13 @@ Module.register("MMM-Tabs", {
         this.getContentRoot()?.querySelector(".mmm-tabs-trigger")?.focus()
       }
     }
+  },
+
+  suspend() {
+    this.clearResetTimeout()
+  },
+
+  resume() {
+    this.scheduleResetTimeout()
   }
 })

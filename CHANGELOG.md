@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Page visibility control via MagicMirror module selection (`classes` / `identifiers`)
 - `global` config for modules that remain visible on every page
 - `animationTime` and `useLockString` options for show/hide transitions
+- `resetTimeout` option to return to the first page after idle time (default 1 minute; set `0` or `false` to disable)
 - Unit tests for page config normalization and module filtering
 
 ### Fixed
