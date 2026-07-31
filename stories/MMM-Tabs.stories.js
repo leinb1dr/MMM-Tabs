@@ -4,12 +4,26 @@ import { buildTemplateData, renderTabsTemplate } from "../lib/render-template.js
 
 /**
  * @param {object} data
+ * @param {{ open?: boolean }} [options]
  * @returns {HTMLElement}
  */
-function renderTabs(data) {
+function renderTabs(data, options = {}) {
   const wrapper = document.createElement("div")
   wrapper.className = "MMM-Tabs"
   wrapper.innerHTML = renderTabsTemplate(templateSource, data)
+
+  if (options.open) {
+    const dropdown = wrapper.querySelector(".mmm-tabs-dropdown")
+    const trigger = wrapper.querySelector(".mmm-tabs-trigger")
+    const menu = wrapper.querySelector(".mmm-tabs-menu")
+
+    if (dropdown && trigger && menu) {
+      dropdown.classList.add("open")
+      trigger.setAttribute("aria-expanded", "true")
+      menu.hidden = false
+    }
+  }
+
   return wrapper
 }
 
@@ -36,6 +50,13 @@ export const CalendarPage = {
     pages: ["Home", "Calendar", "Weather"],
     currentPage: 1
   }))
+}
+
+export const OpenDropdown = {
+  render: () => renderTabs(buildTemplateData({
+    pages: ["Home", "Calendar", "Weather"],
+    currentPage: 0
+  }), { open: true })
 }
 
 export const SinglePage = {

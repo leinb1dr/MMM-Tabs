@@ -1,26 +1,106 @@
+.MMM-Tabs {
+  --mmm-tabs-text: #999;
+  --mmm-tabs-text-dimmed: #666;
+  --mmm-tabs-text-bright: #fff;
+  --mmm-tabs-background: #000;
+}
+
 .MMM-Tabs .mmm-tabs {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   pointer-events: auto;
 }
 
 .MMM-Tabs .mmm-tabs-current,
-.MMM-Tabs .mmm-tabs-select {
+.MMM-Tabs .mmm-tabs-label {
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-.MMM-Tabs .mmm-tabs-select {
-  appearance: auto;
-  background-color: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
+.MMM-Tabs .mmm-tabs-dropdown {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.MMM-Tabs .mmm-tabs-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
   padding: 0.25rem 0.125rem;
+  border: none;
+  background: transparent;
+  color: var(--mmm-tabs-text-bright);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
   pointer-events: auto;
 }
 
-.MMM-Tabs .mmm-tabs-select:focus {
+.MMM-Tabs .mmm-tabs-trigger:focus {
+  box-shadow: none;
+}
+
+.MMM-Tabs .mmm-tabs-trigger:focus-visible {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.MMM-Tabs .mmm-tabs-chevron {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--mmm-tabs-text);
+  border-bottom: 2px solid var(--mmm-tabs-text);
+  transform: rotate(45deg) translateY(-0.1rem);
+  transition: transform 0.15s ease;
+}
+
+.MMM-Tabs .mmm-tabs-dropdown.open .mmm-tabs-chevron {
+  transform: rotate(-135deg) translateY(-0.1rem);
+}
+
+.MMM-Tabs .mmm-tabs-menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 100;
+  min-width: max(100%, 9rem);
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+  background: var(--mmm-tabs-background);
+  border-top: 1px solid var(--mmm-tabs-text-dimmed);
+  border-bottom: 1px solid var(--mmm-tabs-text-dimmed);
+  color: var(--mmm-tabs-text);
+  transform: translateX(-50%);
+}
+
+.MMM-Tabs .mmm-tabs-option {
+  padding: 0.4rem 1rem;
+  color: var(--mmm-tabs-text);
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.25;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: center;
+}
+
+.MMM-Tabs .mmm-tabs-option:hover,
+.MMM-Tabs .mmm-tabs-option:focus {
+  color: var(--mmm-tabs-text-bright);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.MMM-Tabs .mmm-tabs-option.selected,
+.MMM-Tabs .mmm-tabs-option[aria-selected="true"] {
+  color: var(--mmm-tabs-text-bright);
+  font-weight: 600;
 }

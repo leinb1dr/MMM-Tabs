@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Combined the page indicator and dropdown into a single clickable select control
+- Replaced the native `<select>` with a custom dropdown styled for MagicMirror themes
+- Dropdown colors follow MagicMirror theme variables when available (`--color-text`, etc.)
+- Combined the page indicator and dropdown into a single clickable control
 - Dropdown now lists all pages with the current page selected
 - Enabled pointer events so the dropdown is clickable on MagicMirror
 

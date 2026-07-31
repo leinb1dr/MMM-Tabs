@@ -34,11 +34,22 @@ function renderPage(scenarioKey) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MMM-Tabs Test</title>
     <style>
+      :root {
+        --color-text: #999;
+        --color-text-dimmed: #666;
+        --color-text-bright: #fff;
+        --color-background: #000;
+      }
+
       body {
-        background: #000;
-        color: #fff;
-        font-family: "Roboto", sans-serif;
+        background: var(--color-background);
+        color: var(--color-text);
+        font-family: "Roboto Condensed", "Roboto", sans-serif;
         margin: 2rem;
+      }
+
+      .bright {
+        color: var(--color-text-bright);
       }
 
       ${css}
@@ -49,15 +60,50 @@ function renderPage(scenarioKey) {
       ${html}
     </div>
     <script>
-      const select = document.querySelector(".mmm-tabs-select")
       const output = document.createElement("output")
       output.id = "selected-page"
       output.setAttribute("aria-live", "polite")
       document.body.appendChild(output)
 
-      if (select) {
-        select.addEventListener("change", (event) => {
-          output.textContent = event.target.value
+      const dropdown = document.querySelector(".mmm-tabs-dropdown")
+      if (dropdown) {
+        const trigger = dropdown.querySelector(".mmm-tabs-trigger")
+        const menu = dropdown.querySelector(".mmm-tabs-menu")
+        const options = [...dropdown.querySelectorAll(".mmm-tabs-option")]
+
+        const open = () => {
+          dropdown.classList.add("open")
+          trigger.setAttribute("aria-expanded", "true")
+          menu.hidden = false
+        }
+
+        const close = () => {
+          dropdown.classList.remove("open")
+          trigger.setAttribute("aria-expanded", "false")
+          menu.hidden = true
+        }
+
+        trigger.addEventListener("click", (event) => {
+          event.stopPropagation()
+          if (dropdown.classList.contains("open")) {
+            close()
+          } else {
+            open()
+          }
+        })
+
+        for (const option of options) {
+          option.addEventListener("click", (event) => {
+            event.stopPropagation()
+            output.textContent = option.dataset.value
+            close()
+          })
+        }
+
+        document.addEventListener("pointerdown", (event) => {
+          if (!dropdown.contains(event.target)) {
+            close()
+          }
         })
       }
     </script>
